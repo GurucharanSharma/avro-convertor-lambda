@@ -1,0 +1,138 @@
+/**
+ * Ad Tech Decision Engine audit log event Avro schema
+ */
+@namespace("com.paytmlabs.adtech.adtechdecisionengine.schema.audit")
+protocol OfferSelectionAuditLog {
+	record AuditLogEvent {
+		Request request;
+		Response response;
+		Context context;
+		union{string, null} message;
+		long producer_ts;
+		union{null, ReservationContext} reservation_context;
+	}
+
+	record Request {
+		union{string, null} request_id;
+		string transaction_id;
+		string transaction_source;
+		string user_id;
+	}
+
+	record ReservationContext {
+        array<GratificationDetails> gratification;
+        map<boolean> segmentation_context;
+    }
+
+    record GratificationDetails {
+        boolean ads_funded;
+        boolean scratch_card;
+        string redemption_type;
+        double amount;
+    }
+
+	record Response {
+		union {null, SelectionAlgorithm} selection_algorithm = null;
+		array<OfferResult> offers;
+		union {null, string} split_tag = null;
+	}
+
+	record OfferResult {
+	    union{null, string} gratification_id = null;
+		union{null, string} deal_product_id = null;
+		union{null, string} app_name = null;
+		union{null, long} ro_id = null;
+		union{null, long} campaign_id = null;
+		union{null, long} ad_set_id = null;
+		union{null, string} campaign_category = null;
+		union{null, CampaignObjective} campaign_objective = null;
+		union{null, int} campaign_priority = null;
+		union{null, TargetingType} targeting_type = null;
+		union{null, OfferContentType} offer_content_type = null;
+		union{null, SelectionType} selection_type = null;
+		union{null, AssetSelectionStrategy} asset_sel_strategy = null;
+		union{null, RankingDetails} ranking_details = null;
+		union{null, AdvertiserDetails} advertiser_details = null;
+		union{null, string} reservation_type = null;
+	}
+
+	record Context {
+		union{array<string>, null} available_deal_product_ids;
+		FetchAction audience_action;
+		FetchAction quota_action;
+		union{null, FetchAction} fetch_aov_action = null;
+		union{null, ExternalSelectionAction} external_selection_action = null;
+		union{array<string>, null} associated_deal_product_ids;
+		union{array<ExceededQuotasDetails>, null} exceeded_quotas_details;
+		union{null, float} aov_selection_percent = null;
+		union{null, CampaignPriorityConfig} campaign_priority_config = null;
+		union{null, array<AovDetail>} aov_details = null;
+	}
+
+	record AovDetail {
+		long campaign_id;
+		int campaign_priority;
+		string deal_product_id;
+		long ad_set_id;
+		AdvertiserType advertiser_type;
+		float yield_value;
+		float objective_worth;
+		float probability_of_objective;
+		float worth_value;
+		union{null, long} worth_funnel_occurrence = null;
+		float yield_worth_factor;
+		union{null, long} yield_funnel_occurrence = null;
+		union{null, float} yield_prediction_metric = null;
+		float aggregated_opportunity_value;
+		float acceleration_factor;
+		float pacing_factor;
+		union{null, float} budget_spent = null;
+		union{null, float} percentage_budget_spent = null;
+		float final_aggregated_opportunity_value;
+		string metric_used_for_yield_calculation;
+		string metric_used_for_worth_calculation;
+		string funnel_used_for_yield_calculation;
+		string funnel_used_for_worth_calculation;
+		long data_calculated_at;
+		long data_considered_upto;
+	}
+
+	record ExceededQuotasDetails {
+		string ad_set_id;
+		string deal_product_id;
+	}
+
+	record RankingDetails {
+		RankingAlgorithm algo;
+		union{null, float} score = null;
+		union{null, string} source_id = null;
+		union{null, string} campaign_category = null;
+	}
+
+	record AdvertiserDetails {
+		long advertiser_id;
+		string advertiser_name;
+	}
+
+	enum CampaignObjective {OPEN_OFFER, CLOSED_OFFER, NONE}
+
+	enum TargetingType {SEGMENTED, SEGMENTED_ROADBLOCK, ROADBLOCK}
+
+	enum OfferContentType {MERCHANT_OFFER}
+
+	enum FetchAction {FETCHED, NOT_FETCHED, ERROR}
+
+	enum AssetSelectionStrategy {SINGLE, RANDOM, PERFORMANCE_BASED, EXTERNAL, AOV}
+
+	enum RankingAlgorithm {RANDOM, TEMP_TARGETED, CAMPAIGN_ID, CAMPAIGN_SCORES, EXTERNAL, COST_PER_DELIVERY, AOV_VALUE, NONE}
+
+	enum SelectionType {INTERNAL, EXTERNAL, INTERNAL_FALLBACK}
+
+	enum ExternalSelectionAction {NOT_PERFORMED, COMPLETED, NOT_COMPLETED, ERROR}
+
+	enum SelectionAlgorithm {INTERNAL, INTERNAL_AOV}
+
+	enum CampaignPriorityConfig {EXTERNAL_HIGHEST_WINS, MIXED_HIGHEST_WINS}
+
+	enum AdvertiserType {INTERNAL, EXTERNAL}
+}
